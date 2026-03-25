@@ -46,5 +46,36 @@ def get_product_details(product_id):
         })
     return jsonify({"message":  "Product not found"}), 404
 
+@app.route("/api/products/update/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"message":"Product not found"}), 404
+
+    data = request.json
+    if 'name' in data:
+        product.name = data['name']
+    if 'price' in data:
+        product.price = data['price']
+    if 'description' in data:
+        product.description = data['description']
+
+    db.session.commit()
+    return jsonify({"message": "Product updated sucessfully"})
+
+@app.route("/api/products", methods=["GET"])
+def get_products():
+    products = Product.query.all()
+    product_list = []
+    for product in products:
+        product_list.append({
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'description': product.description
+        })
+        
+    return jsonify(product_list)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
